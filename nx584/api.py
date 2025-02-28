@@ -76,6 +76,7 @@ def command():
             CONTROLLER.arm_auto(int(args.get('partition', 1)))
     elif args.get('cmd') == 'disarm':
         CONTROLLER.disarm(args.get('master_pin'), int(args.get('partition', 1)))
+    elif args.get('cmd') == 'siren': CONTROLLER.siren(int(args.get('partition', 1)))
     return flask.Response()
 
 
