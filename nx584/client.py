@@ -40,7 +40,14 @@ class Client(object):
                     'master_pin': master_pin,
                     'partition': partition})
         return r.status_code == 200
-
+        
+    def siren(self, partition=1):
+        r = self._session.get(
+            self._url + '/command',
+            params={'cmd': 'siren',
+                    'partition': partition})
+        return r.status_code == 200
+        
     def set_bypass(self, zone, bypass):
         data = {'bypassed': bypass}
         r = self._session.put(self._url + '/zones/%i' % zone,
