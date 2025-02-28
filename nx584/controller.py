@@ -261,7 +261,7 @@ class NXBinary(NXProtocol):
         for i, index in reversed(list(enumerate(bytestuff))):
             data[index:index+1] = [0x7d, 0x5e]
 
-        # add the start character 0x7e
+
         data.insert(0, 0x7e)
 
         self.write(bytes(data))
@@ -478,7 +478,7 @@ class NXController(object):
         self._queue.append([0x3C] +
                            make_pin_buffer(master_pin) +
                            [0x01, partition])
-
+    def siren(self, partition): self._queue.append([0x3E, 0x04, partition])
     def zone_bypass_toggle(self, zone):
         self._queue.append([0x3F, zone - 1])
 
