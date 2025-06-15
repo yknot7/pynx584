@@ -3,7 +3,7 @@ version: "3.2"
 services:
   pynx584:
     container_name: pynx584
-    image: kk7ds/pynx584
+    image: yknot7/pynx584
     # Uncomment to expose tty device in container 
     #devices:
     #  - "/dev/ttyS0:/dev/ttyS0"    
