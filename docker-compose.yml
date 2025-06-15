@@ -1,23 +1,33 @@
-version: "3.2"
+version: '3.8'
 
 services:
   pynx584:
     container_name: pynx584
-    image: yknot7/pynx584
-    # Uncomment to expose tty device in container 
-    #devices:
-    #  - "/dev/ttyS0:/dev/ttyS0"    
-    build:
-      context: .docker
-      dockerfile: Dockerfile
+    image: yknot7-pynx:latest
     restart: unless-stopped
     ports:
-      - 5007:5007
+      - "5007:5007"
+    # Uncomment to expose the serial port to the container
+    # devices:
+     # - "/dev/ttyS0:/dev/ttyS0"
     environment:
-      # Uncomment these as needed, depending on how you connect to the panel (via Serial or TCP Socket)
-      # - SERIAL=/dev/ttyS0
-      # - BAUD=38400
+      # Use one of the following depending on your setup:
+
+      # If connecting via serial
+      - SERIAL=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+      - BAUD=9600
+
+      # If connecting via TCP socket (e.g., IP and port of your NX584 panel)
       # - CONNECT=192.168.1.101:23
-      # Uncomment as needed, depending on the location of the config file
-      # - CONFIG=/config.ini
+
+      # If you have a config file
+      - CONFIG=/mnt/data/nx584/config.ini
     network_mode: bridge
+    volumes:
+      - /mnt/data/nx584:/mnt/data/nx584
+    # Optional: mount a config file or persistent data directory
+    # volumes:
+    #   - ./config.ini:/config.ini
+#dmesg -T | grep usb
+#nx584_client show --host 172.16.1.71:5007 --partition 1
+#20108:raw:0:/dev/ttyUSB0:9600 8DATABITS NONE 1STOPBIT max-connections=3
