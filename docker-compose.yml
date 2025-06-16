@@ -8,8 +8,8 @@ services:
     ports:
       - "5007:5007"
     # Uncomment to expose the serial port to the container
-    # devices:
-     # - "/dev/ttyS0:/dev/ttyS0"
+    devices:
+      - "/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0:/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0"
     environment:
       # Use one of the following depending on your setup:
 
