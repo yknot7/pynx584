@@ -1,4 +1,5 @@
-# Alpine
+# Alpine, apk add --allow-untrusted pynx584-1-r0.apk , python3 -m http.server 8000
+
 
 pkgname=pynx584
 pkgver=1
