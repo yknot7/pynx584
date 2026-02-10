@@ -79,7 +79,7 @@ class NXFrame(object):
 
         self.length = line_bytes[0]
         msgtypefield = line_bytes[1]
-        self.checksum = (line_bytes[-2] << 8) & line_bytes[-1]
+        self.checksum = (line_bytes[-2] << 8) | line_bytes[-1]
         self.data = line_bytes[2:-2]
         self.ackreq = bool(msgtypefield & 0x80)
         self.msgtype = msgtypefield & 0x7F
@@ -336,7 +336,7 @@ class StreamWrapper(object):
             LOG.warning('Failed to send frame; reconnecting')
             self.reconnect()
             # Try to re-send if we reconnect so we don't lose this event
-            self.protocol.write(data)
+            self.protocol.write_frame(data)
 
 
 class SocketWrapper(StreamWrapper):
@@ -360,7 +360,9 @@ class SerialWrapper(StreamWrapper):
     def _connect(self):
         port, baudrate = self._portspec
         self._s = serial.Serial(port, baudrate, timeout=0.25)
-        return self._s.isOpen();
+        if hasattr(self._s, 'is_open'):
+            return self._s.is_open
+        return self._s.isOpen()
 
 
 class NXController(object):

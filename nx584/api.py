@@ -1,11 +1,30 @@
 import flask
 import json
 import logging
+import os
 
 
 LOG = logging.getLogger('api')
 CONTROLLER = None
 app = flask.Flask('nx584')
+API_KEY = os.environ.get('NX584_API_KEY')
+
+
+def _error(message, status=500):
+    return flask.jsonify({'error': message}), status
+
+
+def _check_auth():
+    if not API_KEY:
+        return None
+    header = flask.request.headers.get('Authorization', '')
+    if header.startswith('Bearer '):
+        token = header.split(' ', 1)[1].strip()
+    else:
+        token = flask.request.headers.get('X-Api-Key', '').strip()
+    if token != API_KEY:
+        return _error('unauthorized', 401)
+    return None
 
 
 def show_zone(zone):
@@ -44,29 +63,40 @@ def show_user(user):
 @app.route('/zones')
 def index_zones():
     try:
+        auth = _check_auth()
+        if auth:
+            return auth
         result = json.dumps({
             'zones': [show_zone(zone) for zone in CONTROLLER.zones.values()]})
         return flask.Response(result,
                               mimetype='application/json')
-    except Exception as e:
+    except Exception:
         LOG.exception('Failed to index zones')
+        return _error('internal_error', 500)
 
 
 @app.route('/partitions')
 def index_partitions():
     try:
+        auth = _check_auth()
+        if auth:
+            return auth
         result = json.dumps({
             'partitions': [show_partition(partition)
                            for partition in CONTROLLER.partitions.values()]})
         return flask.Response(result,
                               mimetype='application/json')
-    except Exception as e:
+    except Exception:
         LOG.exception('Failed to index partitions')
+        return _error('internal_error', 500)
 
 
-@app.route('/command')
+@app.route('/command', methods=['GET', 'POST'])
 def command():
-    args = flask.request.args
+    auth = _check_auth()
+    if auth:
+        return auth
+    args = flask.request.values
     if args.get('cmd') == 'arm':
         if args.get('type') == 'stay':
             CONTROLLER.arm_stay(int(args.get('partition', 1)))
@@ -76,16 +106,22 @@ def command():
             CONTROLLER.arm_auto(int(args.get('partition', 1)))
     elif args.get('cmd') == 'disarm':
         CONTROLLER.disarm(args.get('master_pin'), int(args.get('partition', 1)))
-    elif args.get('cmd') == 'siren': CONTROLLER.siren(int(args.get('partition', 1)))
-    return flask.Response()
+    elif args.get('cmd') == 'siren':
+        CONTROLLER.siren(int(args.get('partition', 1)))
+    else:
+        return _error('invalid_command', 400)
+    return flask.Response(status=204)
 
 
 @app.route('/zones/<int:zone>', methods=['PUT'])
 def put_zone(zone):
+    auth = _check_auth()
+    if auth:
+        return auth
     zone = CONTROLLER.zones.get(zone)
     if not zone:
         flask.abort(404)
-    zonedata = flask.request.json
+    zonedata = flask.request.json or {}
     if 'bypassed' in zonedata:
         want_bypass = zonedata['bypassed']
         if want_bypass == zone.bypassed:
@@ -98,6 +134,9 @@ def put_zone(zone):
 
 @app.route('/users/<int:user>')
 def get_user(user):
+    auth = _check_auth()
+    if auth:
+        return auth
     args = flask.request.args
     master_pin = flask.request.headers.get('Master-Pin')
     if not master_pin:
@@ -117,6 +156,9 @@ def get_user(user):
 
 @app.route('/users/<int:user>', methods=['PUT'])
 def put_user(user):
+    auth = _check_auth()
+    if auth:
+        return auth
     if user == 1:
         return 'I refuse to let you break your master user', 403
     master_pin = flask.request.headers.get('Master-Pin')
@@ -153,6 +195,9 @@ def put_user(user):
 
 @app.route('/events')
 def get_events():
+    auth = _check_auth()
+    if auth:
+        return auth
     index = int(flask.request.args.get('index', 0))
     timeout = int(flask.request.args.get('timeout', 10))
     events = CONTROLLER.event_queue.get(index, timeout=timeout)
@@ -166,6 +211,9 @@ def get_events():
 
 @app.route('/version')
 def get_version():
+    auth = _check_auth()
+    if auth:
+        return auth
     return flask.Response(json.dumps(
         {'version': '1.2',
          'last_active': int(CONTROLLER.last_active)}),

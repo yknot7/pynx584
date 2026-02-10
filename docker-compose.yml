@@ -7,24 +7,30 @@ services:
     restart: unless-stopped
     ports:
       - "5007:5007"
-    # Uncomment to expose the serial port to the container
-    devices:
-      - "/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0:/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0"
     environment:
       # Use one of the following depending on your setup:
 
       # If connecting via serial
-      - SERIAL=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
-      - BAUD=9600
+      # - SERIAL=/dev/serial/by-id/your-serial-device
+      # - BAUD=9600
 
       # If connecting via TCP socket (e.g., IP and port of your NX584 panel)
       # - CONNECT=192.168.1.101:23
 
       # If you have a config file
-      - CONFIG=/mnt/data/nx584/config.ini
+      # - CONFIG=/mnt/data/nx584/config.ini
+    # Uncomment to expose the serial port to the container
+    # devices:
+    #   - "/dev/serial/by-id/your-serial-device:/dev/serial/by-id/your-serial-device"
     network_mode: bridge
-    volumes:
-      - /mnt/data/nx584:/mnt/data/nx584
+    # volumes:
+    #   - /mnt/data/nx584:/mnt/data/nx584
+    #
+    # Offline deps (optional):
+    # If you are installing on a host without internet access, run:
+    #   make install-offline
+    # or:
+    #   scripts/install_offline.sh
     # Optional: mount a config file or persistent data directory
     # volumes:
     #   - ./config.ini:/config.ini

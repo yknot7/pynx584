@@ -24,6 +24,8 @@ def parse_args():
                         help='User PIN to set (or `x` to disable)')
     parser.add_argument('--host', default='localhost:5007',
                         help='Host and port (localhost:5007)')
+    parser.add_argument('--api-key', default=None,
+                        help='API key (NX584_API_KEY)')
     args = parser.parse_args()
     return args
 
@@ -154,7 +156,7 @@ def do_alive(clnt, args):
 def main():
     args = parse_args()
     url = 'http://%s:%s' % tuple(args.host.split(':', 1))
-    clnt = client.Client(url)
+    clnt = client.Client(url, api_key=args.api_key)
     if args.command == 'list':
         do_list(clnt, args)
     elif args.command in ['arm', 'arm-stay', 'arm-exit', 'arm-auto']:

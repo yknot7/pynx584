@@ -17,22 +17,17 @@ source="$pkgname-$pkgver.tar.gz::https://github.com/yknot7/pynx584/archive/refs/
 builddir="$srcdir/$pkgname-$pkgver"
 
 build() {
-    export PIP_NO_INDEX=1
-    export PIP_FIND_LINKS="$builddir/vendor"
     python3 -m build --wheel --no-isolation
 }
 
 package() {
     python3 -m installer --destdir="$pkgdir" dist/*.whl
-    install -Dm644 "$builddir/requirements.txt" "$pkgdir/usr/share/pynx584/requirements.txt"
-    mkdir -p "$pkgdir/usr/share/pynx584"
-    cp -R "$builddir/vendor" "$pkgdir/usr/share/pynx584/vendor"
 
     # -------------------------
     # 1) config.ini
     # -------------------------
     install -Dm644 /dev/null "$pkgdir/root/config.ini"
-    cat > "$pkgdir/root/config.ini" <<'EOF'
+    cat > "$pkgdir/root/config.ini" <<'CFGEOF'
 [config]
 max_zone = 26
 idle_time_heartbeat_seconds = 10
@@ -64,13 +59,13 @@ idle_time_heartbeat_seconds = 10
 25 = MST.CLOSET WINDO
 26 = MST.BDRM.DOOR
 9 = 1FL.LIVING RR.WD
-EOF
+CFGEOF
 
     # -------------------------
     # 2) OpenRC service
     # -------------------------
     install -Dm755 /dev/null "$pkgdir/etc/init.d/nx584_server"
-    cat > "$pkgdir/etc/init.d/nx584_server" <<'EOF'
+    cat > "$pkgdir/etc/init.d/nx584_server" <<'SRVEOF'
 #!/sbin/openrc-run
 
 command="/usr/bin/nx584_server"
@@ -82,7 +77,7 @@ depend() {
     need localmount
     after net
 }
-EOF
+SRVEOF
     chmod +x "$pkgdir/etc/init.d/nx584_server"
 
     # -------------------------

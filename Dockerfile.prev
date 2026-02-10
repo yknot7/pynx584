@@ -4,8 +4,7 @@ ENV LISTEN=0.0.0.0
 
 WORKDIR /app
 COPY . /app
-RUN pip install --no-cache-dir --no-index --find-links /app/vendor -r /app/requirements.txt
-RUN pip install --no-cache-dir --no-deps .
+RUN pip install --no-cache-dir .
 
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
 

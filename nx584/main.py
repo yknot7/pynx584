@@ -73,7 +73,7 @@ def main():
     logging.getLogger('connectionpool').setLevel(logging.WARNING)
 
     if args.connect:
-        host, port = args.connect.split(':')
+        host, port = args.connect.split(':', 1)
         ctrl = controller.NXController((host, int(port)),
                                        args.config)
     elif args.serial:

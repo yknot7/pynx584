@@ -53,6 +53,14 @@ Once that is running, you should be able to do something like this::
 
  # Disarm
  $ nx584_client disarm --master 1234
+
+Optional API Key
+****************
+If you set the environment variable :code:`NX584_API_KEY` on the server,
+all API requests must include the matching key. The client supports this
+with :code:`--api-key`::
+
+ $ nx584_client summary --api-key YOUR_KEY
  
 Install via Docker Compose
 **************************
@@ -162,3 +170,10 @@ is a good start to what needs to be set and how:
  * Primary Keypad Function with PIN (OPTIONAL)
  * Secondary Keypad Function (OPTIONAL)
  * Zone Bypass Toggle (OPTIONAL)
+
+Offline Install (Vendored Dependencies)
+***************************************
+If you have the vendored wheels under :code:`vendor/`, you can install
+without network access using the helper script::
+
+ $ scripts/install_offline.sh
