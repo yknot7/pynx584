@@ -27,7 +27,7 @@ package() {
     # 1) config.ini
     # -------------------------
     install -Dm644 /dev/null "$pkgdir/root/config.ini"
-    cat > "$pkgdir/root/config.ini" <<'CFGEOF'
+    cat > "$pkgdir/root/config.ini" <<'EOF'
 [config]
 max_zone = 26
 idle_time_heartbeat_seconds = 10
@@ -59,13 +59,13 @@ idle_time_heartbeat_seconds = 10
 25 = MST.CLOSET WINDO
 26 = MST.BDRM.DOOR
 9 = 1FL.LIVING RR.WD
-CFGEOF
+EOF
 
     # -------------------------
     # 2) OpenRC service
     # -------------------------
     install -Dm755 /dev/null "$pkgdir/etc/init.d/nx584_server"
-    cat > "$pkgdir/etc/init.d/nx584_server" <<'SRVEOF'
+    cat > "$pkgdir/etc/init.d/nx584_server" <<'EOF'
 #!/sbin/openrc-run
 
 command="/usr/bin/nx584_server"
@@ -77,9 +77,10 @@ depend() {
     need localmount
     after net
 }
-SRVEOF
+EOF
     chmod +x "$pkgdir/etc/init.d/nx584_server"
-  # -------------------------
+
+    # -------------------------
     # 3) Enable service on install
     # -------------------------
     install -Dm755 /dev/null "$pkgdir/etc/profile.d/nx584_enable.sh"
@@ -117,10 +118,4 @@ Server running on IP: ${IP:-unknown}, port 5007
 EOM
 EOF
     chmod +x "$pkgdir/etc/profile.d/nx584_motd.sh"
-
-    # -------------------------
-    # 3) Optional: enable service manually
-    # -------------------------
-    # rc-update add nx584_server default
-    # rc-service nx584_server start
 }
