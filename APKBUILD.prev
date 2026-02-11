@@ -79,6 +79,44 @@ depend() {
 }
 SRVEOF
     chmod +x "$pkgdir/etc/init.d/nx584_server"
+  # -------------------------
+    # 3) Enable service on install
+    # -------------------------
+    install -Dm755 /dev/null "$pkgdir/etc/profile.d/nx584_enable.sh"
+    cat > "$pkgdir/etc/profile.d/nx584_enable.sh" <<'EOF'
+#!/bin/sh
+if ! rc-service nx584_server status >/dev/null 2>&1; then
+    rc-update add nx584_server default >/dev/null 2>&1
+    rc-service nx584_server start >/dev/null 2>&1
+fi
+EOF
+    chmod +x "$pkgdir/etc/profile.d/nx584_enable.sh"
+
+    # -------------------------
+    # 4) Dynamic MOTD (every login)
+    # -------------------------
+    install -Dm755 /dev/null "$pkgdir/etc/profile.d/nx584_motd.sh"
+    cat > "$pkgdir/etc/profile.d/nx584_motd.sh" <<'EOF'
+#!/bin/sh
+IP=$(ip -4 addr show scope global | awk '/inet/ {sub(/\/.*/, "", $2); print $2; exit}')
+cat <<EOM
+
+NX584 CONFIG PATH: /root/config.ini
+
+Start server:
+$ nx584_server --serial /dev/USB0 --baud 9600 --config /root/config.ini
+
+Help:
+$ nx584_client arm-stay
+$ nx584_client arm-exit
+$ nx584_client arm-auto
+$ nx584_client disarm --master 1234
+
+Server running on IP: ${IP:-unknown}, port 5007
+
+EOM
+EOF
+    chmod +x "$pkgdir/etc/profile.d/nx584_motd.sh"
 
     # -------------------------
     # 3) Optional: enable service manually
